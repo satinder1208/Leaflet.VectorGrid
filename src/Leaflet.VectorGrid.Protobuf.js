@@ -84,6 +84,15 @@ L.VectorGrid.Protobuf = L.VectorGrid.extend({
 		return this;
 	},
 
+	setFetchFunction: function(fetchFunction, noRedraw){
+
+		this._fetchFunction = fetchFunction;
+
+		if (!noRedraw) {
+			this.redraw();
+		}
+	},
+
 	_getSubdomain: L.TileLayer.prototype._getSubdomain,
 
 	_isCurrentTile : function(coords, tileBounds) {
@@ -124,7 +133,9 @@ L.VectorGrid.Protobuf = L.VectorGrid.extend({
 
 		var tileUrl = L.Util.template(this._url, L.extend(data, this.options));
 
-		return fetch(tileUrl, this.options.fetchOptions).then(function(response){
+		var fetchFunction = this._fetchFunction == undefined ? fetch : this._fetchFunction;
+
+		return fetchFunction(tileUrl, this.options.fetchOptions).then(function(response){
 
 			if (!response.ok || !this._isCurrentTile(coords)) {
 				return {layers:[]};
